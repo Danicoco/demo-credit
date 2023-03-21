@@ -14,7 +14,7 @@ interface ICustomer extends DefaultAttributes {
   address: string;
   lastName: string;
   password: string;
-  isActive: boolean;
+  isActive?: boolean;
   firstName: string;
   phoneNumber: string;
 }
@@ -24,11 +24,11 @@ interface IWallet extends DefaultAttributes {
   balance: string;
   customerId: string;
   accountName: string;
-  pinChangedAt?: string;
+  pinChangedAt?: Date;
   accountNumber: string;
   ledgerBalance: string;
-  lastBalanceUpdateAt: string;
-  lastLedgerBalanceUpdateAt: string;
+  lastBalanceUpdateAt: Date;
+  lastLedgerBalanceUpdateAt: Date;
 }
 
 interface ILedger extends DefaultAttributes {
