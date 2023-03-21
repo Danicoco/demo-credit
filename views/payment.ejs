@@ -1,0 +1,48 @@
+<!doctype html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+    <form>
+        <script defer src="https://js.paystack.co/v1/inline.js"></script>
+        <div id="message" align="center"></div>
+    </form>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function (event) {
+            payWithPaystack();
+        });
+
+        function payWithPaystack() {
+            var handler = PaystackPop.setup({
+                currency: "NGN",
+                key: `<%=key%>`,
+                channels: ['card'],
+                email: `<%=email%>`,
+                ref: `<%=reference%>`,
+                amount: `<%=amount%>`,
+                phone_number: `<%=phone%>`,
+                metadata: {
+                    custom_fields: [{
+                        customerId: `<%=customerId%>`,
+                        customerName: `<%=fullName%>`,
+                        paymentType: `<%=paymentType%>`,
+                    }]
+                },
+                callback: function (response) {
+                    if (response.reference) {
+                        window.ReactNativeWebView.postMessage(response.reference);
+                    } else {
+                        document.getElementById("message").innerHTML = `<h2>Error from Paystack! We could not charge card, try again.</h2>`;
+                    }
+
+                },
+                onClose: function () {
+                    window.ReactNativeWebView.postMessage('closed');
+                }
+            });
+            handler.openIframe();
+        }
+    </script>
+</body>
+
+</html>
