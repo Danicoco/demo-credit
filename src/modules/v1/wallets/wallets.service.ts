@@ -106,10 +106,11 @@ class WalletService {
     return tracker;
   }
 
-  public async findTransaction(id = ""): Promise<ITransaction> {
-    const transaction = await this.model()
+  public async findTransaction(id = "", reference = ''): Promise<ITransaction> {
+    const transaction = await this.transactionModel()
       .where({
         ...(id && { id }),
+        ...(reference && { reference }),
       })
       .first()
       .catch((e) => {
@@ -136,14 +137,14 @@ class WalletService {
     if (type === "credit") {
       const balance = this.moneySaver(Number(wallet.balance) + Number(amount));
       const ledgerBalance = this.moneySaver(Number(wallet.ledgerBalance) + Number(amount))
-      const trans = await Promise.all([
+      const [_, transaction] = await Promise.all([
         this.model(trx)
           .where(this.finder())
           .update({
-            balance, lastBalanceUpdateAt: new Date().toISOString(),
+            balance, lastBalanceUpdateAt: new Date(),
             ...(withLedger && {
               ledgerBalance,
-              lastLedgerBalanceUpdateAt: new Date().toISOString(),
+              lastLedgerBalanceUpdateAt: new Date(),
             })
            }),
         this.transactionModel(trx).insert({
@@ -151,6 +152,7 @@ class WalletService {
           status,
           reference,
           description,
+          walletId: wallet.id,
           customerId: wallet.customerId,
           currentBalance: wallet.balance,
           amount: this.moneySaver(amount),
@@ -172,16 +174,14 @@ class WalletService {
         }),
       ]);
 
-      console.log(trans, "credit wallet");
       await this.ledgerTrackerModel(trx).insert({
-        customerId: wallet.customerId,
-        // @ts-ignore
-        transactionId: trans[1].id,
+        walletId: wallet.id,
+        transactionId: transaction[0],
         type: "credit",
-        status: "pending",
+        status: "success",
       });
 
-      result = trans;
+      result = transaction;
     }
 
     if (type === "debit") {
@@ -189,10 +189,10 @@ class WalletService {
         throw catchError("Insufficient fund", 400);
       }
       const balance = this.moneySaver(Number(wallet.balance) - Number(amount));
-      const trans = await Promise.all([
+      const [_, trans] = await Promise.all([
         this.model(trx).where(this.finder()).update({
           balance,
-          lastBalanceUpdateAt: new Date().toISOString(),
+          lastBalanceUpdateAt: new Date(),
         }),
         this.transactionModel(trx).insert({
           type,
@@ -220,11 +220,9 @@ class WalletService {
         }),
       ]);
 
-      console.log(trans, "debit wallet");
       await this.ledgerTrackerModel(trx).insert({
-        customerId: wallet.customerId,
-        // @ts-ignore
-        transactionId: trans[1].id,
+        walletId: wallet.id,
+        transactionId: trans[0],
         type: "credit",
         status: "pending",
       });
