@@ -46,7 +46,6 @@ export const createAccount = async (
         lastName,
         firstName,
         phoneNumber,
-        isActive: true,
         password: hashPassword(password),
       })
       .catch(() => {
@@ -108,7 +107,7 @@ export const profile = async (
 
     return res
       .status(200)
-      .json(success("Profile complte", service.get(customer)));
+      .json(success("Profile complte", customer ? service.get(customer) : null));
   } catch (error) {
     next(error);
   }
