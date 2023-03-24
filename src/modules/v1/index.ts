@@ -5,8 +5,8 @@ import customerRouters from "./customers/customers.route";
 
 const router = Router();
 
-router.use('/customer', customerRouters);
-router.use('/wallet', walletRouter);
+router.use('/customers', customerRouters);
+router.use('/wallets', walletRouter);
 
 router.use("/", async (_req, res, _next) =>
   res.send("Welcome to Demo Credits API")

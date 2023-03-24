@@ -82,7 +82,7 @@ export const isAuthenticated = async (
       const authToken = req.get('Authorization');
       const token = authToken?.split(' ')[1];
       if (!token) {
-          throw catchError("No authentication header provided");
+          throw catchError("No authentication header provided", 401);
       }
 
       const decoded = jwt
@@ -97,7 +97,7 @@ export const isAuthenticated = async (
 
         return next();
       }
-      throw catchError('Invalid user', 404);
+      throw catchError('Invalid user', 401);
   } catch (error) {
       next(error);
   }
