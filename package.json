@@ -16,7 +16,7 @@
     "dev": "nodemon -r dotenv/config src/server.ts",
     "start": "node -r dotenv/config build/src/server.js",
     "lint": "eslint --ext .ts --ignore-path .gitignore .",
-    "build": "tsc -p .",
+    "build": "yarn && tsc -p .",
     "migration": "knex --knexfile databases/connection/config.ts migrate:make",
     "migrate": "knex --knexfile databases/connection/config.ts migrate:latest"
   },
